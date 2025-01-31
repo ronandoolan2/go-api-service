@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transaction-api-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: transaction-api
+  template:
+    metadata:
+      labels:
+        app: transaction-api
+        prometheus.io/scrape: "true"   # We'll annotate for Prometheus scraping
+        prometheus.io/port: "8080"
+    spec:
+      containers:
+      - name: transaction-api
+        image: ronandoolan/transaction-api:latest
+        imagePullPolicy: Always
+        env:
+        - name: DB_HOST
+          value: "transaction-db"
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: DB_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: DB_PASSWORD
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: DB_NAME
+        ports:
+        - containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /metrics       # or /health if you add a /health route
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 1
+        livenessProbe:
+          httpGet:
+            path: /metrics       # or /health or root
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 1

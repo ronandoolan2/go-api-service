@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: transaction-api-rules
+  namespace: monitoring
+spec:
+  groups:
+  - name: transaction-api-alerts
+    rules:
+    - alert: TransactionApiHighErrorRate
+      expr: increase(api_http_request_errors_total[5m]) > 10
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High error rate in transaction API"
+        description: "The error rate was above 10 in the last 5 minutes for the Transaction API."

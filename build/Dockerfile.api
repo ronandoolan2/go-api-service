@@ -1,0 +1,20 @@
+FROM golang:1.20 AS builder
+
+WORKDIR /app
+
+# Copy go.mod and go.sum so we can cache dependencies
+COPY api/go.mod api/go.sum ./
+RUN go mod download
+
+# Copy the remaining source files
+COPY api/ .
+
+# Build the API binary
+RUN CGO_ENABLED=0 GOOS=linux go build -o transaction-api .
+
+# Now create a minimal image
+FROM alpine:3.18
+WORKDIR /app
+COPY --from=builder /app/transaction-api .
+EXPOSE 8080
+ENTRYPOINT ["./transaction-api"]

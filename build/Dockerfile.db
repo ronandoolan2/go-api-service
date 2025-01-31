@@ -1,0 +1,6 @@
+FROM postgres:15-alpine
+# Optional environment variable defaults can be set here
+ENV POSTGRES_USER=postgres \
+    POSTGRES_PASSWORD=password \
+    POSTGRES_DB=transactions_db
+EXPOSE 5432

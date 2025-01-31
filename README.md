@@ -22,4 +22,4 @@ This project is a simple proof-of-concept demonstrating:
 ## Quickstart (Local)
 1. Clone this repository:  
    ```bash
-   git clone https://github.com/youruser/transaction-api.git
+   git clone https://github.com/ronandoolan2/go-api-service.git
