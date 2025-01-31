@@ -19,7 +19,20 @@ This project is a simple proof-of-concept demonstrating:
 - Kubectl
 - (Optionally) GitHub Actions set up for CI/CD
 
+
+## Architecture Diagram
+
+![Kubernetes Transaction API Architecture](diagram/kubernetes_transaction_api_architecture.png)
+
 ## Quickstart (Local)
 1. Clone this repository:  
    ```bash
    git clone https://github.com/ronandoolan2/go-api-service.git
+   kind create cluster
+   docker build -t ronandoolan/transaction-api:latest -f build/Dockerfile.api .
+   docker push ronandoolan/transaction-api:latest
+   helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+   helm repo update
+   helm install prometheus-operator prometheus-community/kube-prometheus-stack \
+     --namespace monitoring --create-namespace
+   kubectl apply -f deploy/ 
