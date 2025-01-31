@@ -28,11 +28,17 @@ This project is a simple proof-of-concept demonstrating:
 1. Clone this repository:  
    ```bash
    git clone https://github.com/ronandoolan2/go-api-service.git
+2. Create cluster:
+   ```bash
    kind create cluster
+3. Build container
+   ```bash
    docker build -t ronandoolan/transaction-api:latest -f build/Dockerfile.api .
    docker push ronandoolan/transaction-api:latest
+4. Setup monitoring
    helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
    helm repo update
    helm install prometheus-operator prometheus-community/kube-prometheus-stack \
      --namespace monitoring --create-namespace
+5. Deploy api stack
    kubectl apply -f deploy/ 
