@@ -33,13 +33,13 @@ jobs:
           go test -v ./...
 
       - name: Build Docker image
-        run: docker build -t your-docker-registry/transaction-api:latest -f build/Dockerfile.api .
+        run: docker build -t ronandoolan/transaction-api:latest -f build/Dockerfile.api .
 
       - name: Log into Docker registry
         run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
       - name: Push Docker image
-        run: docker push your-docker-registry/transaction-api:latest
+        run: docker push ronandoolan/transaction-api:latest
 
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
