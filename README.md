@@ -36,9 +36,11 @@ This project is a simple proof-of-concept demonstrating:
    docker build -t ronandoolan/transaction-api:latest -f build/Dockerfile.api .
    docker push ronandoolan/transaction-api:latest
 4. Setup monitoring
+   ```bash
    helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
    helm repo update
    helm install prometheus-operator prometheus-community/kube-prometheus-stack \
      --namespace monitoring --create-namespace
 5. Deploy api stack
+   ```bash
    kubectl apply -f deploy/ 
