@@ -23,10 +23,14 @@ jobs:
           go mod tidy
 
       - name: Build
-        run: go build -o transaction-api ./api/
+        run: |
+          cd api
+          go build -o transaction-api
 
       - name: Run tests
-        run: go test ./api/...
+        run: |
+          cd api
+          go test -v ./...
 
       - name: Build Docker image
         run: docker build -t your-docker-registry/transaction-api:latest -f build/Dockerfile.api .
