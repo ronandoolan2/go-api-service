@@ -48,8 +48,4 @@ jobs:
 
       - name: Deploy to Kubernetes
         run: |
-          kubectl apply -f deploy/postgres-configmap.yaml
-          kubectl apply -f deploy/postgres-deployment.yaml
-          kubectl apply -f deploy/postgres-service.yaml
-          kubectl apply -f deploy/api-deployment.yaml
-          kubectl apply -f deploy/api-service.yaml
+          kubectl apply -f deploy/
