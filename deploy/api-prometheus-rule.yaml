@@ -2,7 +2,8 @@ apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   name: transaction-api-rules
-  namespace: monitoring
+  labels:
+    release: prometheus-operator
 spec:
   groups:
   - name: transaction-api-alerts
