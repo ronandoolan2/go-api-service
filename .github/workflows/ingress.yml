@@ -1,0 +1,88 @@
+name: CI CD Pipeline
+
+on:
+  push:
+    branches:
+      - ingress
+
+jobs:
+  deploy-ingress:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v3
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: "latest"
+
+      - name: Install Helm                                                                                                                                        
+        run: |                                                                                                                                                    
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3                                                         
+          chmod 700 get_helm.sh                                                                                                                                   
+          sudo ./get_helm.sh  
+
+      - name: Set up KinD
+        uses: engineerd/setup-kind@v0.5.0
+        with:
+          version: v0.17.0            # Which KinD CLI version to install
+          image: kindest/node:v1.25.3 #Which node image to use for the cluster
+          name: my-kind-cluster
+          wait: 300s
+
+      - name: Wait for KinD cluster to be ready
+        run: kubectl cluster-info
+
+      - name: Setup prometheus crds
+        run: |
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
+          helm install prometheus-operator prometheus-community/kube-prometheus-stack
+
+      - name: setup nginx ingress controller
+        run: |
+          kubectl apply -f deploy/ingress-setup.yaml
+          kubectl wait --namespace ingress-nginx \                                           
+            --for=condition=Ready pod \
+            --selector=app.kubernetes.io/component=controller \
+            --timeout=120s
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f deploy/
+
+      - name: Wait for Pods to be ready
+        run: |
+          # Wait for all Pods in the namespace "default" to become 'Ready'
+          kubectl wait pods \
+            --for=condition=Ready \
+            --all \
+            --namespace default \
+            --timeout=120s
+
+      - name: Port forward & test POST request
+        run: |
+          # Port-forward your service in the background
+          kubectl port-forward --namespace ingress-nginx svc/ingress-nginx-controller 8080:80 &
+          sleep 5
+      
+          # Execute the curl POST command, capturing only the HTTP status code
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST \
+            -H 'Host: transaction-api.local' \
+            -H "Content-Type: application/json" \
+            -d '{
+              "transactionId": "0f7e46df-c685-4df9-9e23-e75e7ac8ba7a",
+              "amount": "99.99",
+              "timestamp": "2025-01-01T12:00:00Z"
+            }' \
+            http://127.0.0.1:8080/api/transaction/)
+      
+          # Check the status code and fail if it isn’t 201
+          if [ "$HTTP_CODE" -ne 201 ]; then
+            echo "ERROR: Expected 201, got $HTTP_CODE"
+            exit 1
+          fi
+      
+          echo "SUCCESS: POST returned 201!"
