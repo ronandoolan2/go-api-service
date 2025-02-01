@@ -9,15 +9,16 @@ This project is a simple proof-of-concept demonstrating:
 ## Features
 - Minimal REST API endpoint:
   - `POST /api/transaction` -> inserts a new transaction into the database.
+- Unit tests in go
 - Containerized with multi-stage Docker build.
 - Kubernetes manifests for deploying the API and Postgres.
-- Example GitHub Actions workflow for CI/CD.
+- GitHub Actions workflow for CI/CD.
+- Monitoring of application with prometheus.
 
 ## Prerequisites
 - Docker
 - Kubernetes cluster (e.g., Minikube, KIND, or a cloud-managed service)
 - Kubectl
-- (Optionally) GitHub Actions set up for CI/CD
 
 
 ## Architecture Diagram
