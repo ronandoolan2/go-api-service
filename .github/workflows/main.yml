@@ -72,3 +72,37 @@ jobs:
       - name: Deploy to Kubernetes
         run: |
           kubectl apply -f deploy/
+
+      - name: Wait for Pods to be ready
+        run: |
+          # Wait for all Pods in the namespace "default" to become 'Ready'
+          kubectl wait pods \
+            --for=condition=Ready \
+            --all \
+            --namespace default \
+            --timeout=120s
+
+      - name: Port forward & test POST request
+        run: |
+          # Port-forward your service in the background
+          kubectl port-forward svc/transaction-api-service 8080:80 &
+          sleep 5
+      
+          # Execute the curl POST command, capturing only the HTTP status code
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -d '{
+              "transactionId": "0f7e46df-c685-4df9-9e23-e75e7ac8ba7a",
+              "amount": "99.99",
+              "timestamp": "2025-01-01T12:00:00Z"
+            }' \
+            http://127.0.0.1:8080/api/transaction/)
+      
+          # Check the status code and fail if it isn’t 201
+          if [ "$HTTP_CODE" -ne 201 ]; then
+            echo "ERROR: Expected 201, got $HTTP_CODE"
+            exit 1
+          fi
+      
+          echo "SUCCESS: POST returned 201!"
