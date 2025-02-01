@@ -49,8 +49,10 @@ jobs:
       - name: Set up KinD
         uses: engineerd/setup-kind@v0.5.0
         with:
-          kind-version: v0.17.0     # or any version you prefer
-          node-image: kindest/node:v1.25.3  # or another node image
+          version: v0.17.0            # Which KinD CLI version to install
+          image: kindest/node:v1.25.3 #Which node image to use for the cluster
+          name: my-kind-cluster
+          wait: 300s
 
       - name: Wait for KinD cluster to be ready
         run: kubectl cluster-info
