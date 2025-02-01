@@ -1,45 +1,16 @@
-name: CI CD Pipeline
+name: Ingress CI CD Pipeline
 
 on:
   push:
     branches:
-      - master
+      - ingress
 
 jobs:
-  build-and-deploy:
+  deploy-ingress:
     runs-on: ubuntu-latest
     steps:
       - name: Check out source code
         uses: actions/checkout@v3
-
-      - name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: "1.20"
-
-      - name: Install dependencies
-        run: |
-          cd api
-          go mod tidy
-
-      - name: Build
-        run: |
-          cd api
-          go build -o transaction-api
-
-      - name: Run tests
-        run: |
-          cd api
-          go test -v ./...
-
-      - name: Build Docker image
-        run: docker build -t ronandoolan/transaction-api:latest -f build/Dockerfile.api .
-
-      - name: Log into Docker registry
-        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-
-      - name: Push Docker image
-        run: docker push ronandoolan/transaction-api:latest
 
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
@@ -75,7 +46,7 @@ jobs:
           kubectl wait --namespace ingress-nginx \                                           
             --for=condition=Ready pod \
             --selector=app.kubernetes.io/component=controller \
-            --timeout=120s
+            --timeout=360s
 
       - name: Deploy to Kubernetes
         run: |
