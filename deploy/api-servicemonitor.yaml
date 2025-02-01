@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: transaction-api-servicemonitor
+  labels:
+    release: prometheus-operator
+spec:
+  namespaceSelector:
+    matchNames:
+      - default  
+  selector:
+    matchLabels:
+      app: transaction-api
+  endpoints:
+    - port: http
+      path: /metrics
+      scheme: http
