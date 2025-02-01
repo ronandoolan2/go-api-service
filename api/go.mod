@@ -1,4 +1,4 @@
-module github.com/youruser/transaction-api
+module github.com/ronandoolan/transaction-api
 
 go 1.20
 
