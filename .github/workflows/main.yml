@@ -69,6 +69,14 @@ jobs:
           helm repo update
           helm install prometheus-operator prometheus-community/kube-prometheus-stack
 
+      - name: setup nginx ingress controller
+        run: |
+          kubectl apply -f deploy/ingress-setup.yaml
+          kubectl wait --namespace ingress-nginx \                                           
+            --for=condition=Ready pod \
+            --selector=app.kubernetes.io/component=controller \
+            --timeout=120s
+
       - name: Deploy to Kubernetes
         run: |
           kubectl apply -f deploy/
@@ -85,12 +93,13 @@ jobs:
       - name: Port forward & test POST request
         run: |
           # Port-forward your service in the background
-          kubectl port-forward svc/transaction-api-service 8080:80 &
+          kubectl port-forward --namespace ingress-nginx svc/ingress-nginx-controller 8080:80 &
           sleep 5
       
           # Execute the curl POST command, capturing only the HTTP status code
           HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
             -X POST \
+            -H 'Host: transaction-api.local' \
             -H "Content-Type: application/json" \
             -d '{
               "transactionId": "0f7e46df-c685-4df9-9e23-e75e7ac8ba7a",
