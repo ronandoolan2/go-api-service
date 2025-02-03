@@ -1,7 +1,6 @@
 package main
 
 type mockDB struct {
-	// We could track calls or store in-memory data here if needed
 	execError error
 }
 
