@@ -41,7 +41,6 @@ This project is a simple proof-of-concept demonstrating:
    helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
    helm repo update
    helm install prometheus-operator prometheus-community/kube-prometheus-stack \
-     --namespace monitoring --create-namespace
 5. Deploy api stack
    ```bash
    kubectl apply -f deploy/ 
